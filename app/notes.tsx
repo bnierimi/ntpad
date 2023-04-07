@@ -1,27 +1,49 @@
-import EmptyStart from "@/components/Main/EmptyStart"
+"use client"
+
 import EachNote from "@/components/Main/EachNote"
-import { getNotes } from "@/lib/prisma/notes"
+import { useState, useEffect } from "react"
 
-// import Link from "next/link"
-import React from 'react'
+// export const revalidate = 10;
 
-export default async function Users() {
-  const { notes } = await getNotes()
-  // const notes: any[] = []
+export default function Notes() {
 
-  if (notes?.length === 0) {
-    return <EmptyStart/>
-  }
+  const [notes, setNotes] = useState(null)
+  const [isLoading, setLoading] = useState(false)
+
+  useEffect(() => {
+    setLoading(true)
+    fetch("/api/getNotes")
+    .then((res) => res.json())
+    .then((data) => {
+      setNotes(data)
+      setLoading(false)
+    })
+  }, [])
+  
+  if (isLoading) return <div className="w-full h-full flex items-center justify-center italic opacity-60 text-sm">
+                          Loading...
+                        </div>
+
+  if (!notes || notes.notes.length === 0) return <div className="w-full h-full flex items-center justify-center italic opacity-60 text-sm">
+                      You do not have any note, create one.
+                    </div>
 
   return (
-    <div className="space-y-2">
-    	<p className="text-sm opacity-70">Notes</p>
-      <article>if in react in tsx </article>
-    	<div className="grid gap-2 grid-cols-fluid w-full bg-orange-">
+    <div className="px-3 md:px-0">
+      {/* <button onClick={()=>router.push("/new")} className="p-1 bg-rose-500 text-lg font-bold">
+        +
+      </button> */}
+    	<div className="grid gap-1 grid-cols-fluid w-full bg-orange- mb-2">
+	      {/* {
+	        JSON.stringify(notes)
+	      } */}
 	      {
-	        notes?.map((note: any)=>(
-	          <EachNote title={note.title} key={note.id} url={note.id}/>
-	        ))
+	        notes.notes.map((note: any)=>{
+            // note.id = note.id.slice(14)
+	          if (note.deleted !== true) {
+              return <EachNote title={note.title} key={note.shortid} url={note.shortid}/>
+            }
+	        })
 	      }
 	    </div>
     </div>

@@ -12,8 +12,18 @@ datasource db {
 
 model Note {
   id        String   @id @default(cuid())
+  shortid   String?  @unique
   title     String
   content   String
+  labels    Label[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
+}
+
+model Label {
+  id      String  @id @default(cuid())
+  shortid String? @unique
+  name    String  @unique
+  notes   Note[]
 }
